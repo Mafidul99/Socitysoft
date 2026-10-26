@@ -13,6 +13,7 @@ const html = `<!doctype html>
     <base target="_top">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/svg+xml" href="/src/images/ntccsl_logo.png" />
     <meta name="theme-color" content="#102d58">
     <title>NTCCSL Finance System</title>
     <style>${stylesheet}</style>
@@ -29,6 +30,7 @@ const hostingerHtml = `<!doctype html>
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/svg+xml" href="/src/images/ntccsl_logo.png" />
     <meta name="theme-color" content="#102d58">
     <title>NTCCSL Finance System</title>
     <link rel="stylesheet" href="./portal.css">
