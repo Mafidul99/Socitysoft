@@ -1,8 +1,10 @@
 import { readFile, writeFile } from 'node:fs/promises';
 
-const [javascript, stylesheet] = await Promise.all([
+const [javascript, stylesheet, proxy, rewriteRules] = await Promise.all([
   readFile(new URL('../dist/portal.js', import.meta.url), 'utf8'),
   readFile(new URL('../dist/portal.css', import.meta.url), 'utf8'),
+  readFile(new URL('../api.php', import.meta.url), 'utf8'),
+  readFile(new URL('../.htaccess', import.meta.url), 'utf8'),
 ]);
 
 const html = `<!doctype html>
@@ -22,5 +24,26 @@ const html = `<!doctype html>
 </html>
 `;
 
-await writeFile(new URL('../Admin.html', import.meta.url), html);
-console.log('Built Admin.html for the Apps Script panel route.');
+const hostingerHtml = `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#102d58">
+    <title>NTCCSL Finance System</title>
+    <link rel="stylesheet" href="./portal.css">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="./portal.js"></script>
+  </body>
+</html>
+`;
+
+await Promise.all([
+  writeFile(new URL('../Admin.html', import.meta.url), html),
+  writeFile(new URL('../dist/index.html', import.meta.url), hostingerHtml),
+  writeFile(new URL('../dist/api.php', import.meta.url), proxy),
+  writeFile(new URL('../dist/.htaccess', import.meta.url), rewriteRules),
+]);
+console.log('Built Admin.html for Apps Script and a Hostinger-ready site in dist/.');

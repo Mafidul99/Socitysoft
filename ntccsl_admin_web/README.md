@@ -1,6 +1,6 @@
 # NTCCSL React admin portal
 
-This Vite + React application is served by the existing Google Apps Script web app. It uses the current `adminApi()` function through `google.script.run`, so the React UI does not make cross-origin requests to the Apps Script JSON endpoint.
+This Vite + React application can be served by the existing Google Apps Script web app or hosted as a static frontend on Hostinger Shared Hosting. Both options use the existing Apps Script backend and Google Sheets data.
 
 ## Development
 
@@ -24,7 +24,20 @@ npm run typecheck
 npm run build
 ```
 
-The build writes a self-contained `Admin.html` in this directory. Keep the generated file beside `Code.gs` in the bound Apps Script project, then deploy a new web-app version. Open the deployment URL with `?panel=1` to use the React portal.
+The build creates two deployment targets:
+
+- `Admin.html` in this directory is the self-contained Google Apps Script portal. Keep it beside `Code.gs` in the bound Apps Script project, deploy a new web-app version, and open the deployment URL with `?panel=1`.
+- `dist/` is a Hostinger-ready website containing `index.html`, the built frontend assets, and a PHP API relay.
+
+### Hostinger Shared Hosting
+
+1. Deploy the Apps Script project as a web app that executes as the owner, then copy its `/exec` URL. Its access setting must allow unauthenticated server-to-server requests (usually **Anyone**, if permitted by your Google account); the app itself still requires login and checks permissions for protected actions.
+2. After `npm run build`, open `dist/api.php` and replace `REPLACE_WITH_YOUR_DEPLOYMENT_ID` in `APPS_SCRIPT_EXEC_URL` with the deployment ID from the `/exec` URL.
+3. In Hostinger hPanel, point your domain to its website directory (usually `public_html`). Upload the **contents** of `dist/` into that directory, including `.htaccess` and `api.php`. Do not upload `node_modules` or the project source.
+4. Select PHP 8.1 or newer in hPanel, enable SSL for the domain, and open the domain over HTTPS. The PHP cURL extension and Apache rewrite support must be enabled by the hosting plan.
+5. Test sign-in and data loading. If requests fail, check that the Apps Script URL ends in `/exec`, the web app deployment is accessible, and PHP cURL is enabled.
+
+The browser calls the same-origin `/api` route; `api.php` forwards requests to the fixed Apps Script URL, avoiding browser cross-origin restrictions. The API relay accepts POST only and caps request bodies at 500 KB. Keep the Apps Script backend authoritative for authentication, roles, validation, and payment verification. Never put passwords, Cashfree keys, or other credentials in frontend code.
 
 The Apps Script project must include the current `Code.gs`, its existing Sheets/Drive setup, and the appropriate Cashfree Script Properties when enabling payments. The server remains authoritative for login, roles, permissions, validation, loan calculations, and payment verification.
 
